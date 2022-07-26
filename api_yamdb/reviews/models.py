@@ -18,3 +18,12 @@ class User(AbstractUser):
         blank=True,
         max_length=300
     )
+    confirmation_code = models.CharField(
+        'Код подтверждения',
+        default=0,
+        max_length=40
+    )
+    email_valid = models.BooleanField(
+        'Email подтвержден',
+        default=False
+    )
