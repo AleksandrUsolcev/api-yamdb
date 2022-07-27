@@ -50,7 +50,7 @@ class TitleSerializer(serializers.ModelSerializer):
         )
 
 
-class UserSignupSerializer(serializers.ModelSerializer):
+class AuthSignupSerializer(serializers.ModelSerializer):
     username = serializers.SlugField(required=True)
     email = serializers.EmailField(required=True)
 
@@ -76,7 +76,7 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return data
 
 
-class UserTokenSerializer(serializers.ModelSerializer):
+class AuthTokenSerializer(serializers.ModelSerializer):
     username = serializers.SlugField(required=True)
     confirmation_code = serializers.CharField(required=True)
 

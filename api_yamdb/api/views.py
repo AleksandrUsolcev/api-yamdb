@@ -11,7 +11,7 @@ from reviews.models import Category, Genre, User
 from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
-                          UserSignupSerializer, UserTokenSerializer,
+                          AuthSignupSerializer, AuthTokenSerializer,
                           UsersSerializer)
 
 
@@ -48,8 +48,8 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class UserSignupViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSignupSerializer
+class AuthSignupViewSet(viewsets.ModelViewSet):
+    serializer_class = AuthSignupSerializer
     permission_classes = (AllowAny,)
 
     def perform_create(self, serializer):
@@ -75,8 +75,8 @@ class UserSignupViewSet(viewsets.ModelViewSet):
         return Response(request.data, status=status.HTTP_200_OK)
 
 
-class UserTokenViewSet(viewsets.ModelViewSet):
-    serializer_class = UserTokenSerializer
+class AuthTokenViewSet(viewsets.ModelViewSet):
+    serializer_class = AuthTokenSerializer
     permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
