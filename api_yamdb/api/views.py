@@ -1,57 +1,50 @@
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+# from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import User
+from reviews.models import Category, Genre, User
 from .permissions import AllowAdminOnly
+from .serializers import (CategorySerializer, GenreSerializer,
+                          TitleSerializer, TitlePostSerializer)
 from .serializers import (UserSignupSerializer, UserTokenSerializer,
                           UsersSerializer)
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status, viewsets
-from rest_framework.response import Response
-from reviews.models import Category, Genre, Title
-
-from .filters import TitleFilter
-from .mixins import CreateListDestroyViewSet
-from .serializers import (CategorySerializer, GenreSerializer,
-                          TitleSerializer,TitlePostSerializer)
 
 
-class CategoryViewSet(CreateListDestroyViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = (filters.SearchFilter)
-    search_fields = ('name')
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     lookup_field = 'slug'
     # permission_classes = (AdminOrReadOnly)
 
 
-class GenreViewSet(CreateListDestroyViewSet):
+class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = (filters.SearchFilter)
-    search_fields = ('name')
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     lookup_field = 'slug'
     # permission_classes = (AdminOrReadOnly)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    filter_backends = (DjangoFilterBackend)
-    filterset_class = TitleFilter
-    # permission_classes = (AdminOrReadOnly)
+    # filter_backends = (DjangoFilterBackend)
+    # filterset_class = TitleFilter
 
+    # permission_classes = (AdminOrReadOnly)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return TitlePostSerializer
         return TitleSerializer
+
 
 class UserSignupViewSet(viewsets.ModelViewSet):
     serializer_class = UserSignupSerializer
