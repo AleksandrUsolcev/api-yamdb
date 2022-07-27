@@ -97,3 +97,5 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = (AllowAdminOnly,)
     pagination_class = LimitOffsetPagination
     lookup_field = 'username'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username', 'bio', 'role')
