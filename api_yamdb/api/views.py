@@ -3,9 +3,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from reviews.models import User
+from .permissions import AllowAdminOnly
 from .serializers import (UserSignupSerializer, UserTokenSerializer,
                           UsersSerializer)
 
@@ -55,6 +57,7 @@ class UserTokenViewSet(viewsets.ModelViewSet):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    serializer_class = UsersSerializer
-    permission_classes = [permissions.AllowAny]
     queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    permission_classes = [AllowAdminOnly]
+    pagination_class = LimitOffsetPagination
