@@ -19,3 +19,8 @@ class User(AbstractUser):
         blank=True,
         max_length=300
     )
+
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'admin'
+        super().save(*args, **kwargs)
