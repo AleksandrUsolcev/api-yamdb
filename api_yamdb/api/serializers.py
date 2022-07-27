@@ -29,5 +29,16 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return data
 
 
-class TokenSerializer(serializers.ModelSerializer):
-    pass
+class UserTokenSerializer(serializers.ModelSerializer):
+    username = serializers.SlugField(required=True)
+    confirmation_code = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
