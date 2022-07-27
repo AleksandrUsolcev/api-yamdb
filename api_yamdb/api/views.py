@@ -1,10 +1,10 @@
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import User
 from .permissions import AllowAdminOnly
@@ -14,7 +14,7 @@ from .serializers import (UserSignupSerializer, UserTokenSerializer,
 
 class UserSignupViewSet(viewsets.ModelViewSet):
     serializer_class = UserSignupSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         email = serializer.data['email']
@@ -41,7 +41,7 @@ class UserSignupViewSet(viewsets.ModelViewSet):
 
 class UserTokenViewSet(viewsets.ModelViewSet):
     serializer_class = UserTokenSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
         username = request.data['username']
@@ -51,9 +51,8 @@ class UserTokenViewSet(viewsets.ModelViewSet):
             return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
         user.is_active = True
         user.save()
-        # скоро тут будет токен
-        token = 'soon'
-        return Response({'token': token}, status=status.HTTP_200_OK)
+        token = AccessToken.for_user(user)
+        return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
