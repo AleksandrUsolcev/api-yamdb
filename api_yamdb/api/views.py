@@ -96,3 +96,4 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     permission_classes = (AllowAdminOnly,)
     pagination_class = LimitOffsetPagination
+    lookup_field = 'username'
