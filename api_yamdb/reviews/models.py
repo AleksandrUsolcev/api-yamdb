@@ -9,12 +9,12 @@ class User(AbstractUser):
         ('user', 'Аутентифицированный пользователь')
     )
     role = models.CharField(
-        'Роль',
+        verbose_name='Роль',
         choices=roles,
         max_length=10
     )
     bio = models.TextField(
-        'Биография',
+        verbose_name='Биография',
         blank=True,
         max_length=300
     )
@@ -49,17 +49,23 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
-    year = models.PositiveSmallIntegerField(verbose_name=' Год создания')
+    year = models.PositiveSmallIntegerField(verbose_name='Год создания')
     genre = models.ForeignKey(
-        'Genre',
+        Genre,
         on_delete=models.SET_NULL,
-        null=True, blank=True,
+        null=True,
+        blank=True,
         related_name='genre',
-        verbose_name='Жанр')
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL,
-                                 null=True, blank=True,
-                                 related_name='category',
-                                 verbose_name='Категория')
+        verbose_name='Жанр'
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='category',
+        verbose_name='Категория'
+    )
 
     class Meta:
         verbose_name = 'Произведение'

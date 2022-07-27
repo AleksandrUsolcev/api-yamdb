@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, User
-from .permissions import AllowAdminOnly
+from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
-                          TitleSerializer, TitlePostSerializer)
-from .serializers import (UserSignupSerializer, UserTokenSerializer,
+                          TitleSerializer, TitlePostSerializer,
+                          UserSignupSerializer, UserTokenSerializer,
                           UsersSerializer)
 
 
@@ -21,7 +21,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    # permission_classes = (AdminOrReadOnly)
+    permission_classes = (AllowAdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -30,15 +31,16 @@ class GenreViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    # permission_classes = (AdminOrReadOnly)
+    permission_classes = (AllowAdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     # filter_backends = (DjangoFilterBackend)
     # filterset_class = TitleFilter
-
-    # permission_classes = (AdminOrReadOnly)
+    permission_classes = (AllowAdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -48,7 +50,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class UserSignupViewSet(viewsets.ModelViewSet):
     serializer_class = UserSignupSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def perform_create(self, serializer):
         email = serializer.data['email']
@@ -75,14 +77,14 @@ class UserSignupViewSet(viewsets.ModelViewSet):
 
 class UserTokenViewSet(viewsets.ModelViewSet):
     serializer_class = UserTokenSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
         username = request.data['username']
         code = request.data['confirmation_code']
         user = get_object_or_404(User, username=username)
         if user.password != code:
-            return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+            return Response('Неверный код', status=status.HTTP_400_BAD_REQUEST)
         user.is_active = True
         user.save()
         token = AccessToken.for_user(user)
@@ -92,5 +94,5 @@ class UserTokenViewSet(viewsets.ModelViewSet):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = [AllowAdminOnly]
+    permission_classes = (AllowAdminOnly,)
     pagination_class = LimitOffsetPagination
