@@ -4,15 +4,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated, \
-    IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
-from .permissions import AllowAdminOnly, AllowAdminOrReadOnly, \
-    AllowModeratorOrAuthorOrReadOnly
+from .permissions import (AllowAdminOnly, AllowAdminOrReadOnly,
+                          AllowModeratorOrAuthorOrReadOnly)
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
                           AuthSignupSerializer, AuthTokenSerializer,
@@ -67,7 +67,6 @@ class AuthSignupViewSet(viewsets.ModelViewSet):
             email=email,
             is_active=False
         )
-        user.save()
         send_mail(
             'YaMDb - Успешная регистрация',
             message=f'Добро пожаловать {username}! Ваш код подтверждения: '

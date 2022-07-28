@@ -35,7 +35,7 @@ class User(AbstractUser):
 class Category(models.Model):
     """ Категории """
     name = models.CharField(max_length=255, verbose_name='Название')
-    slug = models.SlugField(verbose_name='Слаг категории')
+    slug = models.SlugField(verbose_name='Слаг категории', unique=True)
 
     class Meta:
         verbose_name = 'Категория'
