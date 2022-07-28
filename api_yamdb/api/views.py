@@ -8,11 +8,12 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Genre, User
+from reviews.models import Category, Genre, User, Review, Title
 from .filters import TitleFilter
 from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
+                          CommentSerializer, ReviewSerializer,
                           AuthSignupSerializer, AuthTokenSerializer,
                           UsersSerializer)
 
@@ -112,3 +113,39 @@ class UsersViewSet(viewsets.ModelViewSet):
         user = get_object_or_404(User, username=request.user.username)
         # if request.method == 'GET':
         return Response({'username': user.username}, status=status.HTTP_200_OK)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    # permission_classes = #Доступ автору/модератору/админу. Остальным - чтение
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            title=get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    # permission_classes = #Доступ автору/модератору/админу. Остальным - чтение
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=get_object_or_404(
+                Review,
+                id=self.kwargs.get('review_id'),
+                title=self.kwargs.get('title_id'),
+            )
+        )
