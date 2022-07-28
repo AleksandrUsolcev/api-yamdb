@@ -25,16 +25,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    http_method_names = ('post', 'delete', 'get')
     lookup_field = 'slug'
     permission_classes = (AllowAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(viewsets.ModelViewSet,):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    http_method_names = ('post', 'delete', 'get')
     lookup_field = 'slug'
     permission_classes = (AllowAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
@@ -47,6 +49,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
     permission_classes = (AllowAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
+    http_method_names = ('post', 'delete', 'get', 'patch')
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -122,6 +125,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (AllowModeratorOrAuthorOrReadOnly,
                           IsAuthenticatedOrReadOnly)
+    http_method_names = ('post', 'delete', 'get', 'patch')
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -139,6 +143,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (AllowModeratorOrAuthorOrReadOnly,
                           IsAuthenticatedOrReadOnly)
+    http_method_names = ('post', 'delete', 'get', 'patch')
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
