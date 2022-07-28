@@ -10,10 +10,15 @@ class User(AbstractUser):
         ('moderator', 'Модератор'),
         ('user', 'Аутентифицированный пользователь')
     )
+    email = models.EmailField(
+        verbose_name='Электронная почта',
+        unique=True
+    )
     role = models.CharField(
         verbose_name='Роль',
         choices=roles,
-        max_length=10
+        max_length=10,
+        default='user'
     )
     bio = models.TextField(
         verbose_name='Биография',
