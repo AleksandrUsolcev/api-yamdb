@@ -17,7 +17,6 @@ v1.register(
     views.CommentViewSet,
     basename='comments'
 )
-v1.register('titles', views.TitleViewSet, basename='titles')
 v1.register('categories', views.CategoryViewSet, basename='categories')
 v1.register('genres', views.GenreViewSet, basename='genres')
 v1.register('users', views.UsersViewSet, basename='users')

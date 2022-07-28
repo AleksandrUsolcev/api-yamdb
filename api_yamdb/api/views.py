@@ -8,14 +8,15 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Genre, User, Review, Title
+from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
 from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
                           CommentSerializer, ReviewSerializer,
                           AuthSignupSerializer, AuthTokenSerializer,
-                          UsersSerializer)
+                          UsersSerializer, ReviewSerializer,
+                          CommentSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
