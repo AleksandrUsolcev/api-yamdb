@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+from django.db.models import Avg
 
 from reviews.models import Category, Genre, User, Comment, Review, Title
 
@@ -42,14 +43,19 @@ class TitlePostSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-
-    # rating = ???
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
+        if not rating:
+            return rating
+        return round(rating, 1)
 
 
 class AuthSignupSerializer(serializers.ModelSerializer):

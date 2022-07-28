@@ -62,13 +62,13 @@ class Title(models.Model):
     """ Произведения """
     name = models.CharField(max_length=256, verbose_name='Название')
     year = models.PositiveSmallIntegerField(verbose_name='Год создания')
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.SET_NULL,
+        through='GenreTitle',
         null=True,
         blank=True,
         related_name='genre',
-        verbose_name='Жанр'
+        verbose_name='Жанр',
     )
     category = models.ForeignKey(
         Category,
@@ -78,6 +78,7 @@ class Title(models.Model):
         related_name='category',
         verbose_name='Категория'
     )
+    description = models.CharField(max_length=256, null=True, blank=True, verbose_name='Описание')
 
     class Meta:
         verbose_name = 'Произведение'
@@ -85,6 +86,14 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.genre} {self.title}'
 
 
 class Review(models.Model):
