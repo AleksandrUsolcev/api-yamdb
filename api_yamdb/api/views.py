@@ -118,7 +118,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-
+    pagination_class = LimitOffsetPagination
     # permission_classes = #Доступ автору/модератору/админу. Остальным - чтение
 
     def get_queryset(self):
@@ -134,7 +134,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-
+    pagination_class = LimitOffsetPagination
     # permission_classes = #Доступ автору/модератору/админу. Остальным - чтение
 
     def get_queryset(self):
