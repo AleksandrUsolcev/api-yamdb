@@ -27,7 +27,7 @@ class User(AbstractUser):
     )
 
     def save(self, *args, **kwargs):
-        if self.is_superuser and not self.role:
+        if self.is_superuser:
             self.role = 'admin'
         super().save(*args, **kwargs)
 
@@ -78,7 +78,12 @@ class Title(models.Model):
         related_name='category',
         verbose_name='Категория'
     )
-    description = models.CharField(max_length=256, null=True, blank=True, verbose_name='Описание')
+    description = models.CharField(
+        max_length=256,
+        null=True,
+        blank=True,
+        verbose_name='Описание'
+    )
 
     class Meta:
         verbose_name = 'Произведение'

@@ -13,7 +13,6 @@ from .filters import TitleFilter
 from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
-                          CommentSerializer, ReviewSerializer,
                           AuthSignupSerializer, AuthTokenSerializer,
                           UsersSerializer, ReviewSerializer,
                           CommentSerializer)
@@ -119,7 +118,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
-    # permission_classes = #Доступ автору/модератору/админу. Остальным - чтение
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -135,7 +134,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
-    # permission_classes = #Доступ автору/модератору/админу. Остальным - чтение
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
