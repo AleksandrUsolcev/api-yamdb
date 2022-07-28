@@ -27,7 +27,7 @@ class User(AbstractUser):
     )
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
+        if self.is_superuser and not self.role:
             self.role = 'admin'
         super().save(*args, **kwargs)
 
