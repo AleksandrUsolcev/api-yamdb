@@ -13,6 +13,7 @@ from .filters import TitleFilter
 from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
+                          CommentSerializer, ReviewSerializer,
                           AuthSignupSerializer, AuthTokenSerializer,
                           UsersSerializer, ReviewSerializer,
                           CommentSerializer)
