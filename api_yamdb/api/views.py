@@ -1,13 +1,15 @@
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-# from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, User
+from .filters import TitleFilter
 from .permissions import AllowAdminOnly, AllowAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitlePostSerializer,
@@ -37,8 +39,8 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
-    # filter_backends = (DjangoFilterBackend)
-    # filterset_class = TitleFilter
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
     permission_classes = (AllowAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
@@ -51,6 +53,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class AuthSignupViewSet(viewsets.ModelViewSet):
     serializer_class = AuthSignupSerializer
     permission_classes = (AllowAny,)
+    http_method_names = ('post',)
 
     def perform_create(self, serializer):
         email = serializer.data['email']
@@ -78,6 +81,7 @@ class AuthSignupViewSet(viewsets.ModelViewSet):
 class AuthTokenViewSet(viewsets.ModelViewSet):
     serializer_class = AuthTokenSerializer
     permission_classes = (AllowAny,)
+    http_method_names = ('post',)
 
     def create(self, request, *args, **kwargs):
         username = request.data['username']
@@ -97,3 +101,14 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = (AllowAdminOnly,)
     pagination_class = LimitOffsetPagination
     lookup_field = 'username'
+
+    @action(
+        methods=['GET', 'PATCH'],
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        url_path='me'
+    )
+    def get_profile(self, request):
+        user = get_object_or_404(User, username=request.user.username)
+        # if request.method == 'GET':
+        return Response({'username': user.username}, status=status.HTTP_200_OK)
