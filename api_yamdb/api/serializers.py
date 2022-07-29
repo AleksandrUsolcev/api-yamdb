@@ -1,10 +1,10 @@
+from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
-from django.db.models import Avg
 
-from reviews.models import Category, Genre, User, Comment, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -111,6 +111,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    class Meta:
+        model = Review
+        fields = '__all__'
+
     def validate(self, data):
         request = self.context['request']
         author = request.user
@@ -120,10 +124,6 @@ class ReviewSerializer(serializers.ModelSerializer):
             if Review.objects.filter(title=title, author=author).exists():
                 raise ValidationError('1 произведение - 1 отзыв')
         return data
-
-    class Meta:
-        model = Review
-        fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -34,8 +34,14 @@ class User(AbstractUser):
 
 class Category(models.Model):
     """ Категории """
-    name = models.CharField(max_length=255, verbose_name='Название')
-    slug = models.SlugField(verbose_name='Слаг категории', unique=True)
+    name = models.CharField(
+        max_length=255,
+        verbose_name='Название'
+    )
+    slug = models.SlugField(
+        verbose_name='Слаг',
+        unique=True
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -47,8 +53,14 @@ class Category(models.Model):
 
 class Genre(models.Model):
     """ Жанры """
-    name = models.CharField(max_length=255, verbose_name='Название')
-    slug = models.SlugField(unique=True, verbose_name='Слаг жанра')
+    name = models.CharField(
+        max_length=255,
+        verbose_name='Название'
+    )
+    slug = models.SlugField(
+        unique=True,
+        verbose_name='Слаг'
+    )
 
     class Meta:
         verbose_name = 'Жанр'
@@ -60,12 +72,15 @@ class Genre(models.Model):
 
 class Title(models.Model):
     """ Произведения """
-    name = models.CharField(max_length=256, verbose_name='Название')
-    year = models.PositiveSmallIntegerField(verbose_name='Год создания')
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название'
+    )
+    year = models.PositiveSmallIntegerField(
+        verbose_name='Год создания'
+    )
     genre = models.ManyToManyField(
         Genre,
-        through='GenreTitle',
-        null=True,
         blank=True,
         related_name='genre',
         verbose_name='Жанр',
@@ -91,14 +106,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class GenreTitle(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.genre} {self.title}'
 
 
 class Review(models.Model):
