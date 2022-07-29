@@ -7,7 +7,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
@@ -31,7 +31,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
 
-class GenreViewSet(viewsets.ModelViewSet,):
+class GenreViewSet(viewsets.ModelViewSet, ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -97,7 +97,7 @@ class AuthTokenViewSet(viewsets.ModelViewSet):
             return Response('Неверный код', status=status.HTTP_400_BAD_REQUEST)
         user.is_active = True
         user.save()
-        token = RefreshToken.for_user(user)
+        token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
 
@@ -114,10 +114,16 @@ class UsersViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
         url_path='me'
     )
-    def get_profile(self, request):
-        user = get_object_or_404(User, username=request.user.username)
-        # if request.method == 'GET':
-        return Response({'username': user.username}, status=status.HTTP_200_OK)
+    def get_patch_profile(self, request):
+        if request.method == 'GET':
+            response = UsersSerializer(request.user).data
+            return Response(response, status=status.HTTP_200_OK)
+        elif request.method == 'PATCH':
+            serializer = UsersSerializer(request.user, data=request.data,
+                                         partial=True)
+            serializer.is_valid()
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
