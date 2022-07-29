@@ -122,7 +122,10 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer = UsersSerializer(request.user, data=request.data,
                                          partial=True)
             serializer.is_valid()
-            serializer.save()
+            if request.user.role == 'user':
+                serializer.save(role='user')
+            else:
+                serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
