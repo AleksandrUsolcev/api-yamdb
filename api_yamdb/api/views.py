@@ -62,7 +62,8 @@ class AuthSignupViewSet(ModelViewSet):
     permission_classes = (AllowAny,)
     http_method_names = ('post',)
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        serializer = AuthSignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
         username = serializer.validated_data['username']
@@ -79,9 +80,6 @@ class AuthSignupViewSet(ModelViewSet):
             recipient_list=[email],
             fail_silently=False,
         )
-
-    def create(self, request, *args, **kwargs):
-        super().create(request, *args, **kwargs)
         return Response(request.data, status=status.HTTP_200_OK)
 
 
