@@ -10,13 +10,13 @@ from reviews.models import Category, Comment, Genre, Review, Title, User
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ('id',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ('id',)
 
 
 class TitlePostSerializer(serializers.ModelSerializer):
@@ -77,7 +77,7 @@ class AuthSignupSerializer(serializers.ModelSerializer):
         elif user_email.exists():
             raise serializers.ValidationError(f'Пользовтель с почтой {email} '
                                               f'уже существует')
-        elif username == 'me':
+        elif username.lower() == 'me':
             raise serializers.ValidationError(f'Использовать {username} '
                                               f'в качестве имени пользователя '
                                               f'запрещено')

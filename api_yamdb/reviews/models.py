@@ -2,21 +2,27 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from .validators import year_validator
+
 
 class User(AbstractUser):
     """ Переопределенный пользователь """
-    roles = (
-        ('admin', 'Администратор'),
-        ('moderator', 'Модератор'),
-        ('user', 'Аутентифицированный пользователь')
+    ADMIN = 'admin'
+    MODER = 'moderator'
+    USER = 'user'
+    ROLES = (
+        (ADMIN, 'Администратор'),
+        (MODER, 'Модератор'),
+        (USER, 'Аутентифицированный пользователь')
     )
+
     email = models.EmailField(
         verbose_name='Электронная почта',
         unique=True
     )
     role = models.CharField(
         verbose_name='Роль',
-        choices=roles,
+        choices=ROLES,
         max_length=10,
         default='user'
     )
@@ -25,6 +31,25 @@ class User(AbstractUser):
         blank=True,
         max_length=300
     )
+
+    @property
+    def role_admin(self):
+        return self.role == self.ADMIN
+
+    @property
+    def role_moder(self):
+        return self.role == self.MODER
+
+    @property
+    def role_user(self):
+        return self.role == self.USER
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
 
     def save(self, *args, **kwargs):
         if self.is_superuser:
@@ -36,7 +61,8 @@ class Category(models.Model):
     """ Категории """
     name = models.CharField(
         max_length=255,
-        verbose_name='Название'
+        verbose_name='Название',
+        db_index=True
     )
     slug = models.SlugField(
         verbose_name='Слаг',
@@ -55,7 +81,8 @@ class Genre(models.Model):
     """ Жанры """
     name = models.CharField(
         max_length=255,
-        verbose_name='Название'
+        verbose_name='Название',
+        db_index=True
     )
     slug = models.SlugField(
         unique=True,
@@ -74,15 +101,17 @@ class Title(models.Model):
     """ Произведения """
     name = models.CharField(
         max_length=256,
-        verbose_name='Название'
+        verbose_name='Название',
+        db_index=True
     )
     year = models.PositiveSmallIntegerField(
-        verbose_name='Год создания'
+        verbose_name='Год создания',
+        validators=[year_validator]
     )
     genre = models.ManyToManyField(
         Genre,
         blank=True,
-        related_name='genre',
+        related_name='genres',
         verbose_name='Жанр',
     )
     category = models.ForeignKey(
@@ -90,7 +119,7 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='category',
+        related_name='categories',
         verbose_name='Категория'
     )
     description = models.CharField(
@@ -124,6 +153,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Автор отзыва',
+        db_index=True
     )
     score = models.SmallIntegerField(
         validators=[
@@ -165,6 +195,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='Автор коммента',
+        db_index=True
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
