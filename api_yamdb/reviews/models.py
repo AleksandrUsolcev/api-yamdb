@@ -40,10 +40,6 @@ class User(AbstractUser):
     def role_moder(self):
         return self.role == self.MODER
 
-    @property
-    def role_user(self):
-        return self.role == self.USER
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
