@@ -1,10 +1,10 @@
+from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin)
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -13,8 +13,8 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title, User
-
 from .filters import TitleFilter
+from .mixins import CreateDestroyListMixin
 from .permissions import (AllowAdminOnly, AllowAdminOrReadOnly,
                           AllowModeratorOrAuthorOrReadOnly)
 from .serializers import (AuthSignupSerializer, AuthTokenSerializer,
@@ -24,8 +24,7 @@ from .serializers import (AuthSignupSerializer, AuthTokenSerializer,
                           UsersSerializer)
 
 
-class CategoryViewSet(GenericViewSet, CreateModelMixin, DestroyModelMixin,
-                      ListModelMixin):
+class CategoryViewSet(GenericViewSet, CreateDestroyListMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
@@ -35,8 +34,7 @@ class CategoryViewSet(GenericViewSet, CreateModelMixin, DestroyModelMixin,
     pagination_class = LimitOffsetPagination
 
 
-class GenreViewSet(GenericViewSet, CreateModelMixin, DestroyModelMixin,
-                   ListModelMixin):
+class GenreViewSet(GenericViewSet, CreateDestroyListMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -47,7 +45,7 @@ class GenreViewSet(GenericViewSet, CreateModelMixin, DestroyModelMixin,
 
 
 class TitleViewSet(ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -65,9 +63,11 @@ class AuthSignupViewSet(ModelViewSet):
     permission_classes = (AllowAny,)
     http_method_names = ('post',)
 
-    def perform_create(self, serializer):
-        email = serializer.data['email']
-        username = serializer.data['username']
+    def create(self, request, *args, **kwargs):
+        serializer = AuthSignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        username = serializer.validated_data['username']
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -77,13 +77,10 @@ class AuthSignupViewSet(ModelViewSet):
             'YaMDb - Успешная регистрация',
             message=f'Добро пожаловать {username}! Ваш код подтверждения: '
                     f'{user.password}',
-            from_email='service@yamdb.com',
+            from_email=settings.SERVICE_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )
-
-    def create(self, request, *args, **kwargs):
-        super().create(request, *args, **kwargs)
         return Response(request.data, status=status.HTTP_200_OK)
 
 
@@ -95,8 +92,8 @@ class AuthTokenViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = request.data['username']
-        code = request.data['confirmation_code']
+        username = serializer.validated_data['username']
+        code = serializer.validated_data['confirmation_code']
         if not User.objects.filter(username=username).exists():
             return Response(
                 'Такого пользователя несуществует',
@@ -128,18 +125,17 @@ class UsersViewSet(ModelViewSet):
         url_path='me'
     )
     def get_patch_profile(self, request):
-        if request.method == 'GET':
-            response = UsersSerializer(request.user).data
-            return Response(response, status=status.HTTP_200_OK)
-        elif request.method == 'PATCH':
-            serializer = UsersSerializer(request.user, data=request.data,
-                                         partial=True)
-            serializer.is_valid()
-            if request.user.role == 'user':
-                serializer.save(role='user')
-            else:
-                serializer.save()
+        if request.method == 'PATCH':
+            serializer = UsersSerializer(
+                request.user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        response = UsersSerializer(request.user).data
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class ReviewViewSet(ModelViewSet):
