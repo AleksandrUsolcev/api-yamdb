@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
