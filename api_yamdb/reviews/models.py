@@ -107,7 +107,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         blank=True,
-        related_name='genres',
+        related_name='titles',
         verbose_name='Жанр',
     )
     category = models.ForeignKey(
@@ -115,7 +115,7 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='categories',
+        related_name='titles',
         verbose_name='Категория'
     )
     description = models.CharField(
